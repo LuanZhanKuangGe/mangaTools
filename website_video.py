@@ -1,5 +1,4 @@
-import os
-import os.path
+from pathlib import Path, PurePath
 from gooey import Gooey, GooeyParser
 
 @Gooey(
@@ -16,24 +15,20 @@ def main():
 if __name__ == '__main__':
     args = main()
 
-    input = args.input + r'\\'
-    output = args.output + r'\\av.html'
+    input = Path(args.input)
+    output = Path(args.output) / 'av.html'
 
-    fo = open(output, "w", encoding="utf-8")
+    with output.open("w", encoding="utf-8") as fo:
+        fo.write("<html>\n")
+        fo.write('<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />')
+        fo.write("<body>\n")
 
-    fo.write("<html>\n")
+        for nfo in input.rglob('*.nfo'):
+            fo.write("<p>"+nfo.name.split(" ")[0]+"</p>\n")
 
-    fo.write('<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />')
-    fo.write("<body>\n")
+        fo.write("</body>\n")
+        fo.write("</html>\n")
 
-    for root, dirs, files in os.walk(input, topdown=False):
-        for name in files:
-            if name.endswith(".nfo"):
-                fo.write("<p>"+name.split(" ")[0]+"</p>\n")
+        fo.close()
 
-    fo.write("</body>\n")
-    fo.write("</html>\n")
-
-    fo.close()
-
-    print("完成, 请查看" + output )
+    print("完成, 请查看" + output.name)
